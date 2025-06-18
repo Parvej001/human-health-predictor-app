@@ -15,9 +15,15 @@ app.get("/", (req, res) => {
 
 app.post("/predict", async (req, res) => {
   try {
+    console.log("📥 Received prediction request:", req.body);
+
     const response = await axios.post("https://flask-model-service.onrender.com/predict", req.body);
+
+    console.log("📤 Response from Flask model:", response.data);
+
     res.json(response.data);
   } catch (err) {
+    console.error("❌ Error in calling Flask model:", err.response?.data || err.message);
     res.status(500).json({ error: "Model service failed" });
   }
 });
