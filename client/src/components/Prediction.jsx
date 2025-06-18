@@ -3,8 +3,15 @@ import Select from "react-select";
 import axios from "axios";
 import { motion } from "framer-motion";
 import videoBg from "../assets/hospital.mp4";
-import { FaHeartbeat, FaHandsWash, FaRunning, FaAppleAlt, FaNotesMedical, FaSmileBeam } from "react-icons/fa";
-import { toast } from 'react-toastify';
+import {
+  FaHeartbeat,
+  FaHandsWash,
+  FaRunning,
+  FaAppleAlt,
+  FaNotesMedical,
+  FaSmileBeam
+} from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const tips = [
   "Drink plenty of water and stay hydrated throughout the day.",
@@ -23,24 +30,19 @@ const Prediction = () => {
   const [focused, setFocused] = useState(false);
   const [tipIndex, setTipIndex] = useState(0);
 
+  const BACKEND_URL = "https://node-backend-n52v.onrender.com";
+
   useEffect(() => {
     const fetchSymptoms = async () => {
       try {
-        const res = await axios.get("https://node-backend-n52v.onrender.com/symptoms");
-        console.log("✅ Fetched symptoms:", res.data.symptoms);
-
-        if (res.data.symptoms && res.data.symptoms.length > 0) {
-          const options = res.data.symptoms.map(symptom => ({
-            value: symptom,
-            label: symptom.replace(/_/g, " ")
-          }));
-          setSymptomOptions(options);
-        } else {
-          console.warn("⚠️ No symptoms received from backend.");
-        }
+        const res = await axios.get(`${BACKEND_URL}/symptoms`);
+        const options = res.data.symptoms.map(symptom => ({
+          value: symptom,
+          label: symptom.replace(/_/g, " ")
+        }));
+        setSymptomOptions(options);
       } catch (error) {
-        console.error("❌ Failed to fetch symptoms:", error);
-        toast.error("Unable to load symptoms. Please try again later.");
+        toast.error("❌ Unable to load symptoms. Please try again later.");
       }
     };
 
@@ -65,11 +67,10 @@ const Prediction = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post("https://node-backend-n52v.onrender.com/predict", { symptoms });
+      const res = await axios.post(`${BACKEND_URL}/predict`, { symptoms });
       setPredictions(res.data.predictions);
     } catch (error) {
       toast.error("❌ Prediction failed. Please try again.");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -91,12 +92,14 @@ const Prediction = () => {
         muted
         loop
         playsInline
-        className={`absolute top-0 left-0 w-full h-full object-cover z-[-1] ${blur ? "blur-sm" : "blur-0"}`}
+        className={`absolute top-0 left-0 w-full h-full object-cover z-[-1] ${
+          blur ? "blur-sm" : "blur-0"
+        }`}
       >
         <source src={videoBg} type="video/mp4" />
       </video>
 
-      <div className={`bg-white/20 backdrop-blur-md w-[95%] max-w-5xl mx-auto p-10 rounded-xl mt-24 shadow-xl transition-all duration-500 ${focused ? "pb-20" : "pb-12"}`}>
+      <div className="bg-white/20 backdrop-blur-md w-[95%] max-w-5xl mx-auto p-10 rounded-xl mt-24 shadow-xl transition-all duration-500">
         <motion.h3
           className="text-3xl font-bold text-center mb-4 text-white"
           initial={{ opacity: 0, y: -20 }}
@@ -168,14 +171,21 @@ const Prediction = () => {
                 className="bg-white/80 backdrop-blur p-6 rounded-lg shadow-lg text-center"
               >
                 <p className="text-lg font-semibold text-indigo-700">{item.disease}</p>
-                <p className="text-sm text-gray-800 mt-2">Confidence: <strong>{item.confidence}%</strong></p>
+                <p className="text-sm text-gray-800 mt-2">
+                  Confidence: <strong>{item.confidence}%</strong>
+                </p>
               </motion.div>
             ))}
           </motion.div>
         )}
 
         <div className="mt-12 text-center max-w-xl mx-auto">
-          <motion.h4 className="text-2xl font-bold mb-2 text-white" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+          <motion.h4
+            className="text-2xl font-bold mb-2 text-white"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
             💡 Health Tip
           </motion.h4>
           <motion.p
@@ -183,7 +193,6 @@ const Prediction = () => {
             className="text-sm text-white/90"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
             {tips[tipIndex]}

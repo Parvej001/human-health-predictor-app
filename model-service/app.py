@@ -5,19 +5,22 @@ import joblib
 import numpy as np
 import os
 import traceback
+import pickle  # <-- Added to load symptom_list.pkl
 
 app = Flask(__name__)
 CORS(app)
 
+# File paths
 MODEL_PATH = "model.pkl"
 ENCODER_PATH = "encoder.pkl"
-SYMPTOM_PATH = "symptoms.npy"
+SYMPTOM_PATH = "symptom_list.pkl"  # <-- Updated to use pickle version
 
 # Load assets with error handling
 try:
     model = joblib.load(MODEL_PATH)
     encoder = joblib.load(ENCODER_PATH)
-    symptoms_list = np.load(SYMPTOM_PATH, allow_pickle=True)
+    with open(SYMPTOM_PATH, "rb") as f:
+        symptoms_list = pickle.load(f)  # <-- Load symptoms using pickle
 except Exception as e:
     print("❌ Error loading model or files:", e)
     traceback.print_exc()
@@ -39,7 +42,10 @@ def predict():
     data = request.get_json()
     symptoms = data.get("symptoms", [])
 
+    print("🛠️ Received symptoms:", symptoms)
+
     if not symptoms or not isinstance(symptoms, list):
+        print("❌ Invalid or empty symptoms list.")
         return jsonify({"error": "Invalid or empty symptoms list"}), 400
 
     try:
@@ -53,10 +59,13 @@ def predict():
             else:
                 unmapped.append(symptom)
 
+        print("🧠 Input vector:", input_data)
+
         input_array = np.array(input_data).reshape(1, -1)
         probs = model.predict_proba(input_array)[0]
-        top3_idx = np.argsort(probs)[::-1][:3]
+        print("📊 Probabilities:", probs)
 
+        top3_idx = np.argsort(probs)[::-1][:3]
         predictions = [
             {
                 "disease": encoder.classes_[i],

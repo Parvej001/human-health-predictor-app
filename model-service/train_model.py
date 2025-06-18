@@ -6,6 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report, accuracy_score
 import joblib
 import os
+import pickle  # ✅ needed to save symptom list as a .pkl file
 
 # Load dataset
 DATASET_PATH = os.path.join("..", "dataset", "Training.csv")
@@ -20,6 +21,11 @@ df = df.fillna(0)
 X = df.drop(columns=["prognosis"])
 y = df["prognosis"]
 
+# Save consistent symptom list
+all_symptoms = sorted(X.columns.tolist())
+with open("symptom_list.pkl", "wb") as f:
+    pickle.dump(all_symptoms, f)
+
 # Encode labels
 encoder = LabelEncoder()
 y_encoded = encoder.fit_transform(y)
@@ -33,15 +39,11 @@ model.fit(X_train, y_train)
 
 # Evaluate
 y_pred = model.predict(X_test)
-print("\nModel Accuracy:", accuracy_score(y_test, y_pred))
-print("\nClassification Report:\n")
+print("\n✅ Model Accuracy:", accuracy_score(y_test, y_pred))
+print("\n📊 Classification Report:\n")
 print(classification_report(y_test, y_pred, target_names=encoder.classes_))
 
 # Save model and metadata
 joblib.dump(model, "model.pkl")
 joblib.dump(encoder, "encoder.pkl")
-np.save("symptoms.npy", X.columns)
-print("\nModel, encoder, and symptoms list saved successfully.")
-
-
-
+print("\n✅ Model, encoder, and symptom list saved successfully as .pkl")

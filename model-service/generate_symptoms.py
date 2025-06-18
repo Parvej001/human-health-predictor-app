@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Load dataset
-df = pd.read_csv("../dataset/training.csv")  # Updated path
+df = pd.read_csv("../dataset/Training.csv")  # Updated path
 
 # Print to debug
 print("Columns:", df.columns)
