@@ -50,7 +50,7 @@ This project is an AI-powered **Disease Prediction System** that predicts potent
 > Clone the project and install the dependencies for both frontend and backend.
 
 ### 1️⃣ Clone the repository
-git clone https://github.com/your-username/human-health-predictor-app.git
+git clone https://github.com/Parvej001/human-health-predictor-app.git
 cd human-health-predictor-app
 
 2️⃣ Backend: Setup & Run (Flask + Model)
