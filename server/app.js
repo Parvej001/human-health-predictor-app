@@ -9,7 +9,6 @@ const PORT = process.env.PORT || 10000;
 app.use(cors());
 app.use(express.json());
 
-// ✅ Add this route
 app.get("/", (req, res) => {
   res.send("✅ Node.js backend is live!");
 });
@@ -20,6 +19,17 @@ app.post("/predict", async (req, res) => {
     res.json(response.data);
   } catch (err) {
     res.status(500).json({ error: "Model service failed" });
+  }
+});
+
+// ✅ Add this route to support symptoms fetching
+app.get("/symptoms", async (req, res) => {
+  try {
+    const response = await axios.get("https://flask-model-service.onrender.com/symptoms");
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error fetching symptoms:", error.message);
+    res.status(500).json({ error: "Failed to fetch symptoms" });
   }
 });
 
