@@ -25,13 +25,25 @@ const Prediction = () => {
 
   useEffect(() => {
     const fetchSymptoms = async () => {
-      const res = await axios.get("https://node-backend-n52v.onrender.com/symptoms");
-      const options = res.data.symptoms.map(symptom => ({
-        value: symptom,
-        label: symptom.replace(/_/g, " ")
-      }));
-      setSymptomOptions(options);
+      try {
+        const res = await axios.get("https://node-backend-n52v.onrender.com/symptoms");
+        console.log("✅ Fetched symptoms:", res.data.symptoms);
+
+        if (res.data.symptoms && res.data.symptoms.length > 0) {
+          const options = res.data.symptoms.map(symptom => ({
+            value: symptom,
+            label: symptom.replace(/_/g, " ")
+          }));
+          setSymptomOptions(options);
+        } else {
+          console.warn("⚠️ No symptoms received from backend.");
+        }
+      } catch (error) {
+        console.error("❌ Failed to fetch symptoms:", error);
+        toast.error("Unable to load symptoms. Please try again later.");
+      }
     };
+
     fetchSymptoms();
     setTimeout(() => setBlur(false), 1000);
   }, []);
@@ -44,24 +56,24 @@ const Prediction = () => {
   }, []);
 
   const handlePredict = async () => {
-  const symptoms = selected.map(s => s.value);
+    const symptoms = selected.map(s => s.value);
 
-  if (symptoms.length === 0) {
-    toast.warning("⚠️ Please select at least one symptom!");
-    return;
-  }
+    if (symptoms.length === 0) {
+      toast.warning("⚠️ Please select at least one symptom!");
+      return;
+    }
 
-  try {
-    setLoading(true);
-    const res = await axios.post("https://node-backend-n52v.onrender.com/predict", { symptoms });
-    setPredictions(res.data.predictions);
-  } catch (error) {
-    toast.error("❌ Prediction failed. Please try again.");
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      const res = await axios.post("https://node-backend-n52v.onrender.com/predict", { symptoms });
+      setPredictions(res.data.predictions);
+    } catch (error) {
+      toast.error("❌ Prediction failed. Please try again.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleReset = () => {
     setSelected([]);
@@ -103,15 +115,19 @@ const Prediction = () => {
         </motion.p>
 
         <div onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>
-          <Select
-            options={symptomOptions}
-            isMulti
-            onChange={setSelected}
-            value={selected}
-            styles={customStyles}
-            menuPortalTarget={document.body}
-            className="mb-6 text-black z-[10] relative"
-          />
+          {symptomOptions.length === 0 ? (
+            <div className="text-white text-center mb-6">⏳ Loading symptoms...</div>
+          ) : (
+            <Select
+              options={symptomOptions}
+              isMulti
+              onChange={setSelected}
+              value={selected}
+              styles={customStyles}
+              menuPortalTarget={document.body}
+              className="mb-6 text-black z-[10] relative"
+            />
+          )}
         </div>
 
         <div className="flex justify-center gap-4">
@@ -174,43 +190,44 @@ const Prediction = () => {
           </motion.p>
         </div>
       </div>
- 
-      <div className="mt-12 ">
+
+      <div className="mt-12">
         <div className="w-40 mx-auto bg-white/10 backdrop-blur p-4 rounded-lg">
-           <motion.h4
+          <motion.h4
             className="text-3xl font-bold text-white text-center mb-8"
             initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}>
+            whileInView={{ opacity: 1 }}
+          >
             🌿 Healthy Habits
-            </motion.h4>
-            </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 text-center">
-            <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
-              <FaHeartbeat className="text-4xl text-pink-400 mx-auto mb-2" />
-              <p className="text-sm">Heart Health</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
-              <FaHandsWash className="text-4xl text-blue-400 mx-auto mb-2" />
-              <p className="text-sm">Hand Hygiene</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
-              <FaRunning className="text-4xl text-yellow-400 mx-auto mb-2" />
-              <p className="text-sm">Daily Activity</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
-              <FaAppleAlt className="text-4xl text-green-400 mx-auto mb-2" />
-              <p className="text-sm">Nutrition</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
-              <FaNotesMedical className="text-4xl text-red-400 mx-auto mb-2" />
-              <p className="text-sm">Checkups</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
-              <FaSmileBeam className="text-4xl text-purple-400 mx-auto mb-2" />
-              <p className="text-sm">Mental Health</p>
-            </div>
+          </motion.h4>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 text-center">
+          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
+            <FaHeartbeat className="text-4xl text-pink-400 mx-auto mb-2" />
+            <p className="text-sm">Heart Health</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
+            <FaHandsWash className="text-4xl text-blue-400 mx-auto mb-2" />
+            <p className="text-sm">Hand Hygiene</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
+            <FaRunning className="text-4xl text-yellow-400 mx-auto mb-2" />
+            <p className="text-sm">Daily Activity</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
+            <FaAppleAlt className="text-4xl text-green-400 mx-auto mb-2" />
+            <p className="text-sm">Nutrition</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
+            <FaNotesMedical className="text-4xl text-red-400 mx-auto mb-2" />
+            <p className="text-sm">Checkups</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
+            <FaSmileBeam className="text-4xl text-purple-400 mx-auto mb-2" />
+            <p className="text-sm">Mental Health</p>
           </div>
         </div>
+      </div>
     </section>
   );
 };
