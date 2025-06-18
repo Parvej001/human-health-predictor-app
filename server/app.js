@@ -11,7 +11,7 @@ app.use(express.json());
 
 app.post("/predict", async (req, res) => {
   try {
-    const response = await axios.post("http://localhost:8000/predict", req.body);
+    const response = await axios.post("https://flask-model-service.onrender.com/predict", req.body);
     res.json(response.data);
   } catch (err) {
     res.status(500).json({ error: "Model service failed" });
