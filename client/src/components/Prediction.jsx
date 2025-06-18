@@ -25,7 +25,7 @@ const Prediction = () => {
 
   useEffect(() => {
     const fetchSymptoms = async () => {
-      const res = await axios.get("http://localhost:5000/symptoms");
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/symptoms`);
       const options = res.data.symptoms.map(symptom => ({
         value: symptom,
         label: symptom.replace(/_/g, " ")
@@ -53,7 +53,7 @@ const Prediction = () => {
 
   try {
     setLoading(true);
-    const res = await axios.post("http://localhost:5000/predict", { symptoms });
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/predict`, { symptoms });
     setPredictions(res.data.predictions);
   } catch (error) {
     toast.error("❌ Prediction failed. Please try again.");
