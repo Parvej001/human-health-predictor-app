@@ -37,16 +37,16 @@ def get_symptoms():
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
-    input_symptoms = data.get("symptoms", [])
+    symptoms = data.get("symptoms", [])
 
-    if not input_symptoms or not isinstance(input_symptoms, list):
+    if not symptoms or not isinstance(symptoms, list):
         return jsonify({"error": "Invalid or empty symptoms list"}), 400
 
     try:
         input_data = [0] * len(symptoms_list)
         unmapped = []
 
-        for symptom in input_symptoms:
+        for symptom in symptoms:
             index = symptom_index.get(symptom)
             if index is not None:
                 input_data[index] = 1
