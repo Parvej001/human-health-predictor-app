@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import axios from "axios";
@@ -32,20 +33,22 @@ const Prediction = () => {
 
   const BACKEND_URL = "https://node-backend-n52v.onrender.com";
 
-  useEffect(() => {
-    const fetchSymptoms = async () => {
-      try {
-        const res = await axios.get(`${BACKEND_URL}/symptoms`);
-        const options = res.data.symptoms.map(symptom => ({
-          value: symptom,
-          label: symptom.replace(/_/g, " ")
-        }));
-        setSymptomOptions(options);
-      } catch (error) {
-        toast.error("❌ Unable to load symptoms. Please try again later.");
-      }
-    };
+  // ⏳ Load symptoms from backend
+  const fetchSymptoms = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_URL}/symptoms`);
+      const options = res.data.symptoms.map(symptom => ({
+        value: symptom,
+        label: symptom.replace(/_/g, " ")
+      }));
+      setSymptomOptions(options);
+      toast.success("✅ Symptoms loaded successfully!");
+    } catch (error) {
+      toast.error("❌ Failed to load symptoms. Click retry.");
+    }
+  };
 
+  useEffect(() => {
     fetchSymptoms();
     setTimeout(() => setBlur(false), 1000);
   }, []);
@@ -119,7 +122,16 @@ const Prediction = () => {
 
         <div onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>
           {symptomOptions.length === 0 ? (
-            <div className="text-white text-center mb-6">⏳ Loading symptoms...</div>
+            <div className="text-white text-center mb-6">
+              ⏳ Loading symptoms...
+              <br />
+              <button
+                onClick={fetchSymptoms}
+                className="mt-2 underline text-sm text-blue-200 hover:text-blue-400"
+              >
+                🔄 Retry
+              </button>
+            </div>
           ) : (
             <Select
               options={symptomOptions}
