@@ -47,10 +47,7 @@ def predict():
     if not symptoms or not isinstance(symptoms, list):
         print("❌ Invalid or empty symptoms list.")
         return jsonify({"error": "Invalid or empty symptoms list"}), 400
-    
-    if len(symptoms) < 2:
-        return jsonify({"error": "Please select at least 2 symptoms"}), 400
-    
+
     try:
         input_data = [0] * len(symptoms_list)
         unmapped = []
@@ -68,12 +65,13 @@ def predict():
         probs = model.predict_proba(input_array)[0]
         print("📊 Probabilities:", probs)
 
-        top_idx = np.argmax(probs)
+        top3_idx = np.argsort(probs)[::-1][:3]
         predictions = [
             {
-                "disease": encoder.classes_[top_idx],
-                "confidence": round(probs[top_idx] * 100, 2)
+                "disease": encoder.classes_[i],
+                "confidence": round(probs[i] * 100, 2)
             }
+            for i in top3_idx
         ]
 
         return jsonify({
